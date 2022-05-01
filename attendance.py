@@ -1,13 +1,12 @@
-# from asyncore import file_dispatcher
-# import asyncore
-# from audioop import mul
+
+from operator import delitem
 import cv2
 import os
 from cv2 import COLOR_BGR2RGB
 import numpy as np
 import face_recognition
 from datetime import datetime
-# import pandas as pd
+import pandas as pd
 # asyncore.dispatcher.
 
 path = "Attendance images"  #dataset
@@ -24,17 +23,29 @@ print("Names noted")
 
 def markAttendance(name):
     file_name = "attendance_marked.csv"
+    i = 0;
+    d = -1;
+    df = pd.read_csv(file_name)
     with open(file_name, "r+") as f:
         pList = []  #list of already prent in the mark sheet
         dataList = f.readlines()
+        # print(df)
         for line in dataList:
-            entry = line.split(",")[0]
-            pList.append(entry)
+            if line[0] == ",":
+                print("Extra line", i)
+                df = df.drop(df.index[d])
+                
+                # df.iloc[i]
+            else:
+                entry = line.split(",")[1]
+                pList.append(entry)
+                i += 1
+                d += 1
 
         if name not in pList:
             now = datetime.now()
             dString = now.strftime("%H:%M:%S")
-            f.writelines(f'\n{name},{dString}')
+            f.writelines(f'\n{i},{name},{dString}')
 
 #//////////////////////////////////////////////////////////////////
 
@@ -84,6 +95,7 @@ while True:
             cv2.rectangle(Cimage, (x1, y1), (x2, y2), (0, 255, 0), 2)
             cv2.rectangle(Cimage, (x1, y2-35), (x2, y2), (0, 225, 0), cv2.FILLED)
             cv2.putText(Cimage, name, (x1+6, y2-6), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 255, 255), 2)
+            cv2.putText(Cimage, "Attendance Marked", (10, 30), cv2.FONT_HERSHEY_COMPLEX, 1, (0, 0, 0), 2)
             # print(name)
             markAttendance(name)
             
